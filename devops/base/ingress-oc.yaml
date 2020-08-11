@@ -1,0 +1,19 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: lutri2-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host: csa-lutri2.apps.okd.codespring.ro
+    http:
+      paths:
+      - path: /api
+        backend:
+          serviceName: lutri2-backend-service
+          servicePort: 8080
+      - path: /
+        backend:
+          serviceName: lutri2-frontend-service
+          servicePort: 8080

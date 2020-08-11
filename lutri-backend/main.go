@@ -1,0 +1,37 @@
+package main
+
+import (
+	"lutri/controller"
+	"lutri/router"
+	"lutri/shared/config"
+	"lutri/shared/importer"
+	"lutri/shared/logger"
+	"lutri/store"
+	"lutri/store/memory"
+	"lutri/store/mongodb"
+)
+
+func main() {
+	logger.Setup()
+	config.Setup()
+
+	var store store.Store
+
+	if config.CFG.UsingDatabase == "true" {
+		store, _ = mongodb.New(config.CFG.MongoHost, config.CFG.MongoPort, config.CFG.MongoDatabase)
+	} else {
+		store, _ = memory.New()
+	}
+
+	foodStore := store.GetFoodStore()
+
+	if config.CFG.DoImport == "true" {
+		importer := &importer.Importer{FoodStore: foodStore}
+		importer.ImportDatabase()
+	}
+
+	foodCtrl := controller.FoodController{FoodStore: foodStore}
+
+	r := router.New(&foodCtrl)
+	r.Run(config.CFG.RouterPort)
+}

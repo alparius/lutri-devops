@@ -1,0 +1,29 @@
+kind: Kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+
+configMapGenerator:
+- name: lutri2-backend-configmap
+  env: config/backend.properties
+
+# secretGenerator:
+# - name: lutri2-backend-secret
+#   env: secret/backend.properties
+# - name: lutri2-tls
+#   type: "kubernetes.io/tls"
+#   files:
+#     - secret/tls.crt
+#     - secret/tls.key
+
+generatorOptions:
+  disableNameSuffixHash: true
+  labels:
+    type: generated
+
+commonLabels:
+  stack: lutri2
+
+resources:
+  - database.yaml
+  - frontend.yaml
+  - backend.yaml
+  - ingress-oc.yaml

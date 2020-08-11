@@ -1,0 +1,138 @@
+[
+    {
+        "ID": "5d6385f3f250a816135d1000",
+        "name": "egg",
+        "kcal": 155,
+        "carbs": 11,
+        "fats": 1,
+        "protein": 13
+    },
+    {
+        "ID": "5d6385f3f250a816135d1001",
+        "name": "avocado",
+        "kcal": 160,
+        "carbs": 15,
+        "fats": 9,
+        "protein": 2
+    },
+    {
+        "ID": "5d6385f3f250a816135d1002",
+        "name": "salmon",
+        "kcal": 208,
+        "carbs": 13,
+        "fats": 0,
+        "protein": 20
+    },
+    {
+        "ID": "5d6385f3f250a816135d1003",
+        "name": "sausage",
+        "kcal": 530,
+        "carbs": 50,
+        "fats": 1,
+        "protein": 19
+    },
+    {
+        "ID": "5d6385f3f250a816135d1004",
+        "name": "bacon",
+        "kcal": 540,
+        "carbs": 42,
+        "fats": 1,
+        "protein": 37
+    },
+    {
+        "ID": "5d6385f3f250a816135d1005",
+        "name": "olive",
+        "kcal": 116,
+        "carbs": 11,
+        "fats": 6,
+        "protein": 1
+    },
+    {
+        "ID": "5d6385f3f250a816135d1006",
+        "name": "lettuce",
+        "kcal": 15,
+        "carbs": 0,
+        "fats": 3,
+        "protein": 2
+    },
+    {
+        "ID": "5d6385f3f250a816135d1007",
+        "name": "cheese",
+        "kcal": 402,
+        "carbs": 33,
+        "fats": 1,
+        "protein": 25
+    },
+    {
+        "ID": "5d6385f3f250a816135d1008",
+        "name": "greek yogurt",
+        "kcal": 59,
+        "carbs": 10,
+        "fats": 4,
+        "protein": 10
+    },
+    {
+        "ID": "5d6385f3f250a816135d1009",
+        "name": "almond",
+        "kcal": 579,
+        "carbs": 50,
+        "fats": 22,
+        "protein": 21
+    },
+    {
+        "ID": "5d6385f3f250a816135d1010",
+        "name": "chicken",
+        "kcal": 177,
+        "carbs": 8,
+        "fats": 0,
+        "protein": 24
+    },
+    {
+        "ID": "5d6385f3f250a816135d1011",
+        "name": "tomato",
+        "kcal": 32,
+        "carbs": 0,
+        "fats": 6,
+        "protein": 2
+    },
+    {
+        "ID": "5d6385f3f250a816135d1012",
+        "name": "coconut",
+        "kcal": 283,
+        "carbs": 27,
+        "fats": 10,
+        "protein": 3
+    },
+    {
+        "ID": "5d6385f3f250a816135d1013",
+        "name": "cocoa",
+        "kcal": 368,
+        "carbs": 21,
+        "fats": 9,
+        "protein": 20
+    },
+    {
+        "ID": "5d6385f3f250a816135d1014",
+        "name": "carrot",
+        "kcal": 52,
+        "carbs": 0,
+        "fats": 12,
+        "protein": 1
+    },
+    {
+        "ID": "5d6385f3f250a816135d1015",
+        "name": "peanuts",
+        "kcal": 567,
+        "carbs": 49,
+        "fats": 16,
+        "protein": 26
+    },
+    {
+        "ID": "5d6385f3f250a816135d1016",
+        "name": "strawberry",
+        "kcal": 33,
+        "carbs": 0,
+        "fats": 8,
+        "protein": 1
+    }
+]

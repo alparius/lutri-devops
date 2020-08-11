@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lutri2-frontend-deployment
+  labels:
+    component: lutri2-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels: 
+      component: lutri2-frontend
+  template:
+    metadata:
+      name: lutri2-frontend-pod
+      labels:
+        component: lutri2-frontend
+    spec:
+      containers:
+        - name: lutri2-frontend-container
+          image: csalparius/lutri-frontend
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lutri2-frontend-service
+  labels:
+    component: lutri2-frontend
+spec:
+  ports:
+    - name: lutri2-frontend-port
+      port: 8080
+      targetPort: 3000
+      protocol: TCP
+  selector:
+    component: lutri2-frontend

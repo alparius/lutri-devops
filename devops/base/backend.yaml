@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lutri2-backend-deployment
+  labels:
+    component: lutri2-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: lutri2-backend
+  template:
+    metadata:
+      name: lutri2-backend-pod
+      labels:
+        component: lutri2-backend
+    spec:
+      containers:
+        - name: lutri2-backend-container
+          image: csalparius/lutri-backend
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: mongo_host
+              value: lutri2-mongodb-service
+          envFrom:
+          - configMapRef:
+              name: lutri2-backend-configmap
+          # - secretRef:
+          #     name: lutri2-backend-secret
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lutri2-backend-service
+  labels:
+    component: lutri2-backend
+spec:
+  ports:
+    - name: lutri2-backend-port
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+  selector:
+    component: lutri2-backend

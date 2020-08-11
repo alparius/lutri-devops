@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lutri2-mongodb-deployment
+  labels:
+    component: lutri2-mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: lutri2-mongodb
+  template:
+    metadata:
+      labels:
+        component: lutri2-mongodb
+    spec:
+      containers:
+        - name: lutri2-mongodb-container
+          image: mongo:4.2.0-bionic
+          ports:
+            - containerPort: 27017
+              name: mongodb-port
+          volumeMounts:
+            - mountPath: /data/db
+              name: lutri2-mongodb-volume
+      volumes:
+        - name: lutri2-mongodb-volume
+          persistentVolumeClaim:
+            claimName: lutri2-mongodb-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lutri2-mongodb-service
+  labels:
+    component: lutri2-mongodb
+spec:
+  selector:
+      component: lutri2-mongodb
+  ports:
+    - port: 27017
+      targetPort: mongodb-port
+      protocol: TCP
