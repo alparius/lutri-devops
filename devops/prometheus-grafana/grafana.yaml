@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lutri2-grafana
+  labels:
+    stack: lutri2
+    component: lutri2-grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: lutri2-grafana
+  template:
+    metadata:
+      labels:
+        stack: lutri2
+        component: lutri2-grafana
+    spec:
+      volumes:
+        - configMap:
+            name: lutri2-grafana-config
+          name: lutri2-grafana-config
+      containers:
+        - image: grafana/grafana:7.1.0
+          name: grafana
+          ports:
+            - containerPort: 3000
+              name: grafana
+          volumeMounts:
+            - mountPath: /etc/grafana/provisioning/datasources/data_source.yml
+              name: lutri2-grafana-config
+              readOnly: true
+              subPath: data_source.yml
+            - mountPath: /etc/grafana/provisioning/dashboards/dashboard.yaml
+              name: lutri2-grafana-config
+              readOnly: true
+              subPath: provider.yaml
+            - mountPath: /etc/grafana/provisioning/dashboards/lutri-dash.json
+              name: lutri2-grafana-config
+              readOnly: true
+              subPath: lutri-dash.json
+            - mountPath: /etc/grafana/provisioning/dashboards/go-metrics.json
+              name: lutri2-grafana-config
+              readOnly: true
+              subPath: go-metrics.json
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lutri2-grafana-service
+  labels:
+    stack: lutri2
+    component: lutri2-grafana
+spec:
+  type: ClusterIP
+  selector:
+      component: lutri2-grafana
+  ports:
+    - port: 80
+      targetPort: 3000
+      protocol: TCP
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+    name: lutri2-grafana-ingress
+    annotations:
+      kubernetes.io/ingress.class: nginx
+spec:
+    rules:
+    - host: csa-lutri2-grafana.apps.okd.codespring.ro
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: lutri2-grafana-service
+            servicePort: 80

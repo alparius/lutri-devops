@@ -3,39 +3,35 @@ package router
 import (
 	"lutri/controller"
 	"lutri/router/middleware"
+	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	muxlogrus "github.com/pytimer/mux-logrus"
+	"github.com/rs/cors"
 	"github.com/sirupsen/logrus"
 )
 
-type MyRouter struct {
-	foodCtrl *controller.FoodController
-	router   *gin.Engine
-}
-
-// New returns a custom router with middlewares and controllers injected.
-func New(foodCtrl *controller.FoodController) *MyRouter {
-	router := gin.New()
-	gin.ForceConsoleColor()
-
-	// setting up middlewares
-	router.Use(gin.Logger())
-	router.Use(gin.Recovery())
-	router.Use(middleware.GinCors())
-
-	return &MyRouter{foodCtrl, router}
-}
-
 // Run sets up the REST API endpoints and starts the router.
-func (myRouter *MyRouter) Run(port string) {
-	myRouter.router.GET("/api/food/:id", myRouter.foodCtrl.GetByID)
-	myRouter.router.GET("/api/foods", myRouter.foodCtrl.GetAll)
-	myRouter.router.POST("/api/food", myRouter.foodCtrl.Insert)
-	myRouter.router.PUT("/api/food", myRouter.foodCtrl.Update)
-	myRouter.router.DELETE("/api/food/:id", myRouter.foodCtrl.Delete)
+func Run(foodCtrl *controller.FoodController, port string) {
+	router := mux.NewRouter()
 
-	err := myRouter.router.Run(":" + port)
-	if err != nil {
-		logrus.WithField("error", err.Error()).Error("router startup error")
-	}
+	router.Use(muxlogrus.NewLogger().Middleware)
+
+	phm := middleware.InitPrometheusHttpMetric("lutri")
+
+	router.Handle("/api/metrics", promhttp.Handler())
+
+	router.Handle("/api/food/{id}", phm.WrapHandler("foodCtrl.GetByID", foodCtrl.GetByID)).Methods("GET")
+	router.Handle("/api/foods", phm.WrapHandler("foodCtrl.GetAll", foodCtrl.GetAll)).Methods("GET")
+	router.Handle("/api/food", phm.WrapHandler("foodCtrl.Insert", foodCtrl.Insert)).Methods("POST")
+	router.Handle("/api/food", phm.WrapHandler("foodCtrl.Update", foodCtrl.Update)).Methods("PUT")
+	router.Handle("/api/food/{id}", phm.WrapHandler("foodCtrl.Delete", foodCtrl.Delete)).Methods("DELETE")
+
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+	})
+
+	handler := c.Handler(router)
+	logrus.Error(http.ListenAndServe(":"+port, handler))
 }
