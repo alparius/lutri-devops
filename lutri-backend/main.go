@@ -27,7 +27,7 @@ func main() {
 
 	if config.CFG.DoImport == "true" {
 		importer := &importer.Importer{FoodStore: foodStore}
-		importer.ImportDatabase()
+		importer.ImportDatabase("static/foodsData.json")
 	}
 
 	foodCtrl := controller.FoodController{FoodStore: foodStore}

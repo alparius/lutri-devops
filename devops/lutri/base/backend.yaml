@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: lutri2-backend-container
-          image: csalparius/lutri-backend
+          image: alparius/lutri-backend
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

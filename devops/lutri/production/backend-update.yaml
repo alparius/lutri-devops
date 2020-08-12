@@ -1,6 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: lutri2-frontend-deployment
+  name: lutri2-backend-deployment
 spec:
   replicas: 3

@@ -43,6 +43,18 @@ spec:
               name: lutri2-grafana-config
               readOnly: true
               subPath: go-metrics.json
+            - mountPath: /etc/grafana/provisioning/dashboards/mongodb-metrics.json
+              name: lutri2-grafana-config
+              readOnly: true
+              subPath: mongodb-metrics.json
+            - mountPath: /etc/grafana/provisioning/dashboards/grafana-metrics.json
+              name: lutri2-grafana-config
+              readOnly: true
+              subPath: grafana-metrics.json
+            - mountPath: /etc/grafana/provisioning/dashboards/prometheus-metrics.json
+              name: lutri2-grafana-config
+              readOnly: true
+              subPath: prometheus-metrics.json
 
 ---
 apiVersion: v1

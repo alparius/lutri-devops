@@ -9,20 +9,22 @@ data:
       external_labels:
         monitor: 'eks-dev-monitor'
     scrape_configs:
-      - job_name: 'prometheus'
-        scrape_interval: 10s
-        static_configs:
-          - targets: ['localhost:9090']
       - job_name: 'lutri2-backend'
+      scrape_interval: 10s
         static_configs:
           - targets: ['lutri2-backend-service:8080']
         metrics_path: '/api/metrics'
       - job_name: 'mongodb'
         static_configs:
-          - targets: ['lutri2-mongodb-service:27017']
-# - job_name: 'grafana'
-#   static_configs:
-#     - targets: ['grafana:80']
+          - targets: ['lutri2-mongoexport-service:9216']
+      - job_name: 'grafana'
+      scrape_interval: 20s
+        static_configs:
+          - targets: ['lutri2-grafana-service:80']
+      - job_name: 'prometheus'
+        scrape_interval: 20s
+        static_configs:
+          - targets: ['localhost:9090']
 
 ---
 apiVersion: apps/v1

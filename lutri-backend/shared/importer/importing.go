@@ -33,9 +33,9 @@ func readFile(filename string) ([]byte, error) {
 }
 
 // ImportDatabase decides on loading demo or production data based on config files.
-func (imp *Importer) ImportDatabase() {
+func (imp *Importer) ImportDatabase(file string) {
 
-	fileData, err := readFile("static/foodsData.json")
+	fileData, err := readFile(file)
 	if err != nil {
 		logrus.Error(err)
 	}

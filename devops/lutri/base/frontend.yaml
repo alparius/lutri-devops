@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: lutri2-frontend-container
-          image: csalparius/lutri-frontend
+          image: alparius/lutri-frontend
           imagePullPolicy: Always
           ports:
             - containerPort: 3000

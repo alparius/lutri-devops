@@ -10,6 +10,7 @@ require (
 	github.com/pytimer/mux-logrus v0.0.0-20200505085744-ce5a5e748151
 	github.com/rs/cors v1.7.0
 	github.com/sirupsen/logrus v1.6.0
+	github.com/tj/assert v0.0.3
 	github.com/vrischmann/envconfig v1.3.0
 	go.mongodb.org/mongo-driver v1.4.0
 	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550 // indirect

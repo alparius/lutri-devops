@@ -3,4 +3,4 @@ commonLabels:
 bases:
   - ../base
 patches:
-   - frontend-update.yaml
+   - backend-update.yaml

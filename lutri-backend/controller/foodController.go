@@ -26,7 +26,11 @@ func (ctrl *FoodController) GetByID(w http.ResponseWriter, r *http.Request) {
 
 	logrus.WithField("ID", ID).Info("returning food")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(food)
+	if err = json.NewEncoder(w).Encode(food); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		logrus.Error("encoding error")
+		return
+	}
 }
 
 func (ctrl *FoodController) GetAll(w http.ResponseWriter, r *http.Request) {
@@ -45,7 +49,11 @@ func (ctrl *FoodController) GetAll(w http.ResponseWriter, r *http.Request) {
 
 	logrus.WithField("length", len(*foods)).Info("returning all foods")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(foods)
+	if err = json.NewEncoder(w).Encode(foods); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		logrus.Error("encoding error")
+		return
+	}
 }
 
 func (ctrl *FoodController) Insert(w http.ResponseWriter, r *http.Request) {
@@ -82,7 +90,11 @@ func (ctrl *FoodController) Insert(w http.ResponseWriter, r *http.Request) {
 
 	logrus.WithField("food", newFood.ID).Info("new food created")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"insertedID": "` + insertedID + `"}`))
+	if _, err = w.Write([]byte(`{"insertedID": "` + insertedID + `"}`)); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		logrus.Error("write error")
+		return
+	}
 }
 
 // Update updates a Food.

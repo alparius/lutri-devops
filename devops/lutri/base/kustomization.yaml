@@ -24,6 +24,7 @@ commonLabels:
 
 resources:
   - database.yaml
+  - mongoexport.yaml
   - frontend.yaml
   - backend.yaml
   - ingress-oc.yaml
