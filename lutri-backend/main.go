@@ -32,6 +32,5 @@ func main() {
 
 	foodCtrl := controller.FoodController{FoodStore: foodStore}
 
-	r := router.New(&foodCtrl)
-	r.Run(config.CFG.RouterPort)
+	router.Run(&foodCtrl, config.CFG.RouterPort)
 }
