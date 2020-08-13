@@ -2,6 +2,10 @@ pipeline {
     
     agent none
 
+    triggers {
+        pollSCM('H 8-20/2 * * 1-5')
+    }
+
     stages {
 
         stage('lint') {
@@ -10,24 +14,26 @@ pipeline {
             }
             steps {
                 dir ('lutri-backend') {
+                    properties([pipelineTriggers([[$class: 'GitHubPushTrigger'], pollSCM('H/15 * * * *')])])
+                    checkout scm
                     sh 'GO111MODULE=on CGO_ENABLED=0 golangci-lint run'
                 }
             }
         }
 
-        stage('test') {
+        stage('test & coverage') {
             agent {
-                label 'lutri-go'
+                label 'lutri-go-pod'
             }
             steps {
                 dir ('lutri-backend') {
                     sh 'go mod download'
-                    sh 'CGO_ENABLED=0 go test ./...'
+                    sh 'CGO_ENABLED=0 go test ./... -cover'
                 }
             }
         }
 
-        stage('build') {
+        stage('build app') {
             agent {
                 label 'lutri-go'
             }
@@ -39,18 +45,18 @@ pipeline {
             }
         }
 
-        stage('docker image') {
+        stage('docker build & push') {
             agent {
                 label 'lutri-docker'
             }
             steps {
                 sh 'docker login'
-                sh 'make docker-backend'
+                sh 'make docker-backend-jenkins' // this docker image has no go compiling in it
                 // sh 'make docker-frontend'
             }
         }
 
-        stage('openshift') {
+        stage('openshift deploy') {
             agent {
                 label 'lutri-openshift'
             }
