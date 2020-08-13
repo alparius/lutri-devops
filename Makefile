@@ -60,3 +60,5 @@ docker-backend-jenkins:
 docker-jenkins-agent:
 	docker build -t alparius/go-jenkins-agent -f ./devops/jenkins/Dockerfile.go-jenkins-agent ./devops/jenkins
 	docker push alparius/go-jenkins-agent
+
+# testing pipeline triggers
