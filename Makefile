@@ -48,7 +48,7 @@ promgraf-down:
 # ██   ██ ██      ██  ██ ██ ██  ██  ██ ██  ██ ██      ██ 
 #  █████  ███████ ██   ████ ██   ██ ██ ██   ████ ███████ 
 
-agent:
+jenkins-agent:
 	java -jar ./devops/jenkins/agent.jar -jnlpUrl http://jenkins.apps.okd.codespring.ro/computer/lutri-local-agent/slave-agent.jnlp -secret df307f2ac8c5f3488c03a493e491655d6d57a1ada55952b2b4ba0bc03eaddf3c -workDir "/c/Users/cseke.alpar/jenkins"
 
 # jenkins agent runs on WSL so no cross-compile bugs

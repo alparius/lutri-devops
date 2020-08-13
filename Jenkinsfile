@@ -12,14 +12,9 @@ pipeline {
             agent {
                 label 'lutri-go'
             }
-            steps {
-                script {
-                    properties([pipelineTriggers([[$class: 'GitHubPushTrigger'], pollSCM('H/5 * * * *')])])
-                    checkout scm
-                    
-                    dir ('lutri-backend') {
-                        sh 'GO111MODULE=on CGO_ENABLED=0 golangci-lint run'
-                    }
+            steps {                   
+                dir ('lutri-backend') {
+                    sh 'GO111MODULE=on CGO_ENABLED=0 golangci-lint run'
                 }
             }
         }
@@ -44,6 +39,11 @@ pipeline {
                 dir ('lutri-backend') {
                     sh 'rm -rf build'
                     sh 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./build/lutri-backend'
+                }
+            }
+            post {
+                success {
+                    archiveArtifacts(artifacts: 'lutri-backend/build/lutri-backend, lutri-backend/static/*, lutri-backend/config.yml', allowEmptyArchive: true)
                 }
             }
         }
