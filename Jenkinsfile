@@ -13,10 +13,13 @@ pipeline {
                 label 'lutri-go'
             }
             steps {
-                dir ('lutri-backend') {
-                    properties([pipelineTriggers([[$class: 'GitHubPushTrigger'], pollSCM('H/15 * * * *')])])
+                script {
+                    properties([pipelineTriggers([[$class: 'GitHubPushTrigger'], pollSCM('H/5 * * * *')])])
                     checkout scm
-                    sh 'GO111MODULE=on CGO_ENABLED=0 golangci-lint run'
+                    
+                    dir ('lutri-backend') {
+                        sh 'GO111MODULE=on CGO_ENABLED=0 golangci-lint run'
+                    }
                 }
             }
         }
