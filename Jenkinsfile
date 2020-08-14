@@ -39,6 +39,7 @@ pipeline {
                 dir ('lutri-backend') {
                     sh 'rm -rf build'
                     sh 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./build/lutri-backend'
+                    stash name: 'build-artifacts', includes: 'lutri-backend/build/lutri-backend, lutri-backend/static/*, lutri-backend/config.yml'
                 }
             }
             post {
@@ -68,5 +69,21 @@ pipeline {
                 sh 'make lutri-up'
             }
         }
+
+        stage('github release') {
+            agent {
+                label 'lutri-go'
+            }
+            steps {
+                dir('build-artifacts') {
+                    unstash 'build-artifacts'
+                }
+                sh 'zip lutri-backend.zip build-artifacts/build/lutri-backend build-artifacts/static/foodsData.json build-artifacts/config.yml'
+                sh 'chmod +x -R ${WORKSPACE}'
+                sh './release.sh owner=alparius repo=lutri-devops tag=v0.1.2 filename=./lutri-backend.zip'
+            }
+        }
+
+
     }
 }
