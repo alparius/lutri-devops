@@ -21,8 +21,7 @@ func InitPrometheusHttpMetric(prefix string) *PrometheusHttpMetric {
 		RequestData: promauto.NewCounterVec(prometheus.CounterOpts{
 			Name: prefix + "_requests",
 			Help: "HTTP requests data, grouped by status code, method and handler.",
-		}, []string{"code", "method", "handler"},
-		),
+		}, []string{"code", "method", "handler"}),
 
 		ResponseTimeHistogram: promauto.NewSummaryVec(prometheus.SummaryOpts{
 			Name: prefix + "_response_time",

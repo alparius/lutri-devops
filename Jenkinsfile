@@ -26,7 +26,13 @@ pipeline {
             steps {
                 dir ('lutri-backend') {
                     sh 'go mod download'
-                    sh 'CGO_ENABLED=0 go test ./... -cover'
+                    sh 'CGO_ENABLED=0 go test ./... -coverprofile=coverage'
+                    sh 'go tool cover -html=coverage -o ./coverage.html'
+                }
+            }
+            post {
+                success {
+                    archiveArtifacts(artifacts: 'lutri-backend/coverage.html', allowEmptyArchive: true)
                 }
             }
         }
@@ -39,12 +45,12 @@ pipeline {
                 dir ('lutri-backend') {
                     sh 'rm -rf build'
                     sh 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./build/lutri-backend'
-                    stash name: 'build-artifacts', includes: 'lutri-backend/build/lutri-backend, lutri-backend/static/*, lutri-backend/config.yml'
+                    stash name: 'build-artifacts', includes: 'build/lutri-backend'
                 }
             }
             post {
                 success {
-                    archiveArtifacts(artifacts: 'lutri-backend/build/lutri-backend, lutri-backend/static/*, lutri-backend/config.yml', allowEmptyArchive: true)
+                    archiveArtifacts(artifacts: 'lutri-backend/build/lutri-backend', allowEmptyArchive: true)
                 }
             }
         }
@@ -75,12 +81,17 @@ pipeline {
                 label 'lutri-go'
             }
             steps {
-                dir('build-artifacts') {
+                dir('lutri-backend/build-artifacts') {
                     unstash 'build-artifacts'
                 }
-                sh 'zip lutri-backend.zip build-artifacts/build/lutri-backend build-artifacts/static/foodsData.json build-artifacts/config.yml'
-                sh 'chmod +x -R ${WORKSPACE}'
-                sh './release.sh owner=alparius repo=lutri-devops tag=v0.1.2 filename=./lutri-backend.zip'
+                dir ('lutri-backend') {                    
+                    sh 'mv build-artifacts/build/lutri-backend lutri-backend'
+                    sh 'zip lutri-backend.zip lutri-backend static/foodsData.json config.yml'
+
+                    // NOTE: for a new release, update the tag argument here
+                    sh 'chmod +x -R ${WORKSPACE}'
+                    sh './release.sh owner=alparius repo=lutri-devops tag=v0.1.2 filename=./lutri-backend.zip'
+                }
             }
         }
 
