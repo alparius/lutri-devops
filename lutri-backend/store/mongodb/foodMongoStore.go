@@ -58,7 +58,6 @@ func (impl *FoodMongoStore) GetAll() (*[]model.Food, error) {
 		foods = append(foods, p)
 	}
 
-	logrus.WithField("length", len(foods)).Info("returning all Foods")
 	return &foods, nil
 }
 
@@ -73,7 +72,6 @@ func (impl *FoodMongoStore) Insert(food *model.Food) (string, error) {
 		return "", err
 	}
 
-	logrus.WithField("id", result.InsertedID).Info("inserted a Food")
 	return result.InsertedID.(primitive.ObjectID).Hex(), nil
 }
 
@@ -82,13 +80,12 @@ func (impl *FoodMongoStore) Update(food *model.Food) error {
 	ctx, cancel := context.WithTimeout(context.Background(), TIMEOUT)
 	defer cancel()
 
-	result, err := impl.collection.ReplaceOne(ctx, bson.M{"_id": food.ID}, food)
+	_, err := impl.collection.ReplaceOne(ctx, bson.M{"_id": food.ID}, food)
 	if err != nil {
 		logrus.WithField("error", err.Error()).Error("database update error")
 		return err
 	}
 
-	logrus.WithField("updateSize", result.MatchedCount).Info("updated a Food")
 	return nil
 }
 
@@ -103,13 +100,12 @@ func (impl *FoodMongoStore) Delete(ID string) error {
 		return err
 	}
 
-	result, err := impl.collection.DeleteOne(ctx, bson.M{"_id": objectID})
+	_, err = impl.collection.DeleteOne(ctx, bson.M{"_id": objectID})
 	if err != nil {
 		logrus.WithField("error", err.Error()).Error("database delete error")
 		return err
 	}
 
-	logrus.WithField("deleteCount", result.DeletedCount).Info("deleted a Food")
 	return nil
 }
 
@@ -129,7 +125,7 @@ func (impl *FoodMongoStore) InsertMany(foods *[]model.Food) error {
 		return err
 	}
 
-	logrus.WithField("insertCount", len(result.InsertedIDs)).Info("inserted an array of Foods")
+	logrus.WithField("count", len(result.InsertedIDs)).Info("inserted an array of Foods")
 	return nil
 }
 

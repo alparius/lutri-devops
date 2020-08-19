@@ -15,12 +15,11 @@ type FoodController struct {
 }
 
 func (ctrl *FoodController) GetByID(w http.ResponseWriter, r *http.Request) {
-
 	ID := mux.Vars(r)["id"]
 	food, err := ctrl.FoodStore.GetByID(ID)
-	if err != nil && food != nil {
+	if err != nil && food == nil {
 		w.WriteHeader(http.StatusNotFound)
-		logrus.WithField("foodID", ID).Error("food not found")
+		logrus.WithField("ID", ID).Error("food not found")
 		return
 	}
 
@@ -47,7 +46,7 @@ func (ctrl *FoodController) GetAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logrus.WithField("length", len(*foods)).Info("returning all foods")
+	logrus.WithField("count", len(*foods)).Info("returning all foods")
 	w.WriteHeader(http.StatusOK)
 	if err = json.NewEncoder(w).Encode(foods); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -88,7 +87,7 @@ func (ctrl *FoodController) Insert(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logrus.WithField("food", newFood.ID).Info("new food created")
+	logrus.WithField("ID", newFood.ID).Info("insert successful")
 	w.WriteHeader(http.StatusOK)
 	if _, err = w.Write([]byte(`{"insertedID": "` + insertedID + `"}`)); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -110,7 +109,7 @@ func (ctrl *FoodController) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logrus.WithField("ID:", food.ID).Info("updating food")
+	logrus.WithField("ID", food.ID).Info("updating food")
 
 	err = ctrl.FoodStore.Update(&food)
 	if err != nil {
@@ -119,7 +118,7 @@ func (ctrl *FoodController) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logrus.WithField("ID:", food.ID).Info("update successful")
+	logrus.WithField("ID", food.ID).Info("update successful")
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -130,7 +129,7 @@ func (ctrl *FoodController) Delete(w http.ResponseWriter, r *http.Request) {
 	_, err := ctrl.FoodStore.GetByID(ID)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
-		logrus.WithField("foodID", ID).Error("food not found")
+		logrus.WithField("ID", ID).Error("food not found")
 		return
 	}
 
@@ -141,6 +140,6 @@ func (ctrl *FoodController) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logrus.WithField("ID:", ID).Info("delete successful")
+	logrus.WithField("ID", ID).Info("delete successful")
 	w.WriteHeader(http.StatusOK)
 }

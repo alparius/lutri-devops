@@ -1,9 +1,11 @@
 FROM alpine:latest
 
+WORKDIR /src/
+
 COPY ./static/ ./static
 COPY ./config.yml ./config.yml
 COPY ./build/lutri-backend ./lutri-backend
 
 EXPOSE 8080
 
-CMD ["./lutri-backend"]
+CMD ["/src/lutri-backend"]

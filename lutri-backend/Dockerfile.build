@@ -8,12 +8,14 @@ RUN CGO_ENABLED=0 go build -o /lutri-backend
 
 FROM scratch
 
-COPY --from=build /lutri-backend /lutri-backend
+WORKDIR /src/
+
+COPY --from=build /lutri-backend ./lutri-backend
 COPY ./static/ ./static
 COPY ./config.yml ./config.yml
 
 EXPOSE 8080
 
-ENTRYPOINT ["/lutri-backend"]
+ENTRYPOINT ["/src/lutri-backend"]
 
 # on windows I couldn't use the cross-compiled image for some reason

@@ -25,13 +25,11 @@ func (impl *FoodMemoryStore) GetByID(ID string) (*model.Food, error) {
 			return &item, nil
 		}
 	}
-
 	return nil, err
 }
 
 // GetAll gets the list of Foods.
 func (impl *FoodMemoryStore) GetAll() (*[]model.Food, error) {
-	logrus.WithField("length", len(impl.items)).Info("returning all Foods")
 	return &impl.items, nil
 }
 
@@ -77,8 +75,6 @@ func (impl *FoodMemoryStore) Delete(ID string) error {
 // InsertMany saves an array of Foods into the collection.
 func (impl *FoodMemoryStore) InsertMany(foods *[]model.Food) error {
 	impl.items = *foods
-
-	logrus.WithField("insertCount", len(*foods)).Info("inserted an array of Foods")
 	return nil
 }
 

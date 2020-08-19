@@ -32,7 +32,7 @@ func readFile(filename string) ([]byte, error) {
 	return byteValue, nil
 }
 
-// ImportDatabase decides on loading demo or production data based on config files.
+// ImportDatabase loads data from the given JSON file.
 func (imp *Importer) ImportDatabase(file string) {
 
 	fileData, err := readFile(file)

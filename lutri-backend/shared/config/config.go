@@ -8,19 +8,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type Config2 struct {
-	Data struct {
-		UsingDatabase string `yaml:"using_database" envconfig:"using_database"`
-		DoImport      string `yaml:"do_import" envconfig:"do_import"`
-	} `yaml:"data"`
-	MongoDB struct {
-		MongoHost     string `yaml:"mongo_host" envconfig:"mongo_host"`
-		MongoPort     string `yaml:"mongo_port" envconfig:"mongo_port"`
-		MongoDatabase string `yaml:"mongo_database" envconfig:"mongo_database"`
-	} `yaml:"mongodb"`
-	RouterPort string `yaml:"router_port" envconfig:"router_port"`
-}
-
 type Config struct {
 	UsingDatabase string `yaml:"using_database"`
 	DoImport      string `yaml:"do_import"`
@@ -28,6 +15,7 @@ type Config struct {
 	MongoPort     string `yaml:"mongo_port"`
 	MongoDatabase string `yaml:"mongo_database"`
 	RouterPort    string `yaml:"router_port"`
+	LogstashURL   string `yaml:"logstash_url"`
 }
 
 var CFG Config
@@ -36,7 +24,7 @@ var CFG Config
 func Setup() {
 	readFile(&CFG)
 	readEnv(&CFG)
-	logrus.Warn(CFG)
+	logrus.Info(CFG)
 }
 
 func readFile(cfg *Config) {

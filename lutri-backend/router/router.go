@@ -16,8 +16,10 @@ import (
 func Run(foodCtrl *controller.FoodController, port string) {
 	router := mux.NewRouter()
 
-	router.Use(muxlogrus.NewLogger().Middleware)
+	// the router's logger middleware
+	router.Use(muxlogrus.NewLogger(muxlogrus.LogOptions{Formatter: &logrus.TextFormatter{ForceColors: true, TimestampFormat: "2006 Jan _2 15:04:05", FullTimestamp: true}}).Middleware)
 
+	// prometheus middleware setup
 	phm := middleware.InitPrometheusHttpMetric("lutri")
 
 	router.Handle("/api/metrics", promhttp.Handler())

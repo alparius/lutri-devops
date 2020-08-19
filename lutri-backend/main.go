@@ -12,8 +12,8 @@ import (
 )
 
 func main() {
-	logger.Setup()
 	config.Setup()
+	logger.Setup()
 
 	var store store.Store
 

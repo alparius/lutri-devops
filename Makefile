@@ -1,5 +1,6 @@
 .PHONY: agent
 
+THIS_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
 # ██████   ██████   ██████ ██   ██ ███████ ██████  
 # ██   ██ ██    ██ ██      ██  ██  ██      ██   ██ 
@@ -14,6 +15,10 @@ docker-backend:
 docker-frontend:
 	docker build -t alparius/lutri-frontend ./lutri-frontend/
 	docker push alparius/lutri-frontend
+
+docker-logstash:
+	docker build -t alparius/logstash -f ./devops/elk-stack/Dockerfile.oc-logstash ./devops/elk-stack/
+	docker push alparius/logstash
 
 
 #  ██████  ██████  ███████ ███    ██ ███████ ██   ██ ██ ███████ ████████ 
@@ -61,4 +66,27 @@ docker-jenkins-agent:
 	docker build -t alparius/go-jenkins-agent -f ./devops/jenkins/Dockerfile.go-jenkins-agent ./devops/jenkins
 	docker push alparius/go-jenkins-agent
 
-# testing pipeline triggers
+
+# ███████ ██      ██   ██ 
+# ██      ██      ██  ██  
+# █████   ██      █████   
+# ██      ██      ██  ██  
+# ███████ ███████ ██   ██ 
+
+# run logstash locally
+logstash-up:
+	docker run --rm -it \
+		-v ${THIS_DIR}/devops/elk-stack/config.yml:/usr/share/logstash/config/logstash.yml \
+		-v ${THIS_DIR}/devops/elk-stack/pipeline/:/usr/share/logstash/pipeline/ \
+		-v ${THIS_DIR}/lutri-backend/logs:/tmp/logs \
+		-p 5000:5000 \
+		-p 5044:5044 \
+		docker.elastic.co/logstash/logstash:7.8.1
+
+# run logstash on OC kubernetes
+
+logstash-oc-up:
+	oc apply -f ./devops/elk-stack/logstash.yaml
+
+logstash-oc-down:
+	oc delete -f ./devops/elk-stack/logstash.yaml
