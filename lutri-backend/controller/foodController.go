@@ -17,9 +17,14 @@ type FoodController struct {
 func (ctrl *FoodController) GetByID(w http.ResponseWriter, r *http.Request) {
 	ID := mux.Vars(r)["id"]
 	food, err := ctrl.FoodStore.GetByID(ID)
-	if err != nil && food == nil {
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		logrus.WithField("error", err.Error()).Error("database error")
+		return
+	}
+	if food == nil {
 		w.WriteHeader(http.StatusNotFound)
-		logrus.WithField("ID", ID).Error("food not found")
+		logrus.WithField("ID", ID).Warn("food not found")
 		return
 	}
 
@@ -75,7 +80,7 @@ func (ctrl *FoodController) Insert(w http.ResponseWriter, r *http.Request) {
 	for _, item := range *foods {
 		if item.Name == newFood.Name {
 			w.WriteHeader(http.StatusConflict)
-			logrus.WithField("error", err.Error()).Error("already exists")
+			logrus.Warn("already exists")
 			return
 		}
 	}
@@ -126,10 +131,15 @@ func (ctrl *FoodController) Update(w http.ResponseWriter, r *http.Request) {
 func (ctrl *FoodController) Delete(w http.ResponseWriter, r *http.Request) {
 	ID := mux.Vars(r)["id"]
 
-	_, err := ctrl.FoodStore.GetByID(ID)
+	food, err := ctrl.FoodStore.GetByID(ID)
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		logrus.WithField("error", err.Error()).Error("database error")
+		return
+	}
+	if food == nil {
 		w.WriteHeader(http.StatusNotFound)
-		logrus.WithField("ID", ID).Error("food not found")
+		logrus.WithField("ID", ID).Warn("food not found")
 		return
 	}
 
