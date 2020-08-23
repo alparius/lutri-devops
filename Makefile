@@ -30,13 +30,13 @@ docker-logstash:
 # the base stack: mongodb, golang backend, react frontend
 
 lutri-up:
-	oc apply -k ./devops/lutri/base
+	oc apply -k ./devops/kubernetes/base
 
 lutri-scale:
-	oc apply -k ./devops/lutri/production
+	oc apply -k ./devops/kubernetes/production
 
 lutri-down:
-	oc delete -k ./devops/lutri/base
+	oc delete -k ./devops/kubernetes/base
 
 # prometheus and grafana
 
