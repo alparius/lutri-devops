@@ -9,8 +9,8 @@ down:
 
 newinstance:
 	tf taint aws_instance.web
-	tf apply
+	tf apply --auto-approve
 
 newdeploy:
 	tf taint aws_api_gateway_deployment.meteo_deployment
-	tf apply
+	tf apply --auto-approve

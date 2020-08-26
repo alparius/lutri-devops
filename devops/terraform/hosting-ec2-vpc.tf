@@ -147,9 +147,9 @@ resource "aws_key_pair" "auth" {
 }
 
 ### granting role to access S3
-resource "aws_iam_instance_profile" "test_profile" {
-  name = "test_profile"
-  role = "csalpi-2-allow-s3-for-ec2"
+resource "aws_iam_instance_profile" "instance_profile" {
+  name = "instance_profile"
+  role = "csalpi-ec2-access-s3"
 }
 
 ### the instance itself
@@ -163,7 +163,7 @@ resource "aws_instance" "web" {
   vpc_security_group_ids = [aws_security_group.default.id]
 
   # our role to allow it to access S3
-  iam_instance_profile = aws_iam_instance_profile.test_profile.name
+  iam_instance_profile = aws_iam_instance_profile.instance_profile.name
 
   # we're going to launch into the same subnet as our ELB. In a production environment
   # it's more common to have a separate private subnet for backend instances.

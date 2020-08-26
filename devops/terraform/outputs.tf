@@ -1,5 +1,5 @@
 output "lambda_url" {
-  value = aws_api_gateway_deployment.meteo_deployment.invoke_url
+  value = module.apigateway_with_cors.lambda_url # aws_api_gateway_deployment.meteo_deployment.invoke_url
 }
 
 output "website_s3" {
