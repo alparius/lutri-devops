@@ -7,14 +7,26 @@ pipeline {
     }
 
     stages {
-
-        stage('lint') {
-            agent {
-                label 'lutri-go'
-            }
-            steps {                   
-                dir ('lutri-backend') {
-                    sh 'GO111MODULE=on CGO_ENABLED=0 golangci-lint run'
+        stage("lint n' print") {
+            failFast true
+            parallel {
+                stage('lint') {
+                    agent {
+                        label 'lutri-go'
+                    }
+                    steps {                   
+                        dir ('lutri-backend') {
+                            sh 'GO111MODULE=on CGO_ENABLED=0 golangci-lint run'
+                        }
+                    }
+                }
+                stage('print') {
+                    agent {
+                        label 'lutri-go'
+                    }
+                    steps {                   
+                        sh 'echo hola!'
+                    }
                 }
             }
         }
@@ -67,6 +79,10 @@ pipeline {
         }
 
         stage('openshift deploy') {
+            input {
+                message "Deploy to cluster?"
+                submitter "admin"
+            }
             agent {
                 label 'lutri-openshift'
             }
@@ -77,6 +93,10 @@ pipeline {
         }
 
         stage('github release') {
+            input {
+                message "Release to github?"
+                submitter "admin"
+            }
             agent {
                 label 'lutri-go'
             }
