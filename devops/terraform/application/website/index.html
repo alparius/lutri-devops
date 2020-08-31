@@ -1,0 +1,80 @@
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<link rel="icon" href="icon.png">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+		integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous" />
+
+	<script>
+		const images = ["Clear", "Clouds", "Drizzle", "Rain", "Snow", "Thunderstorm"];
+
+		function myFunction() {
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					console.log(this.response);
+					const rsp = JSON.parse(this.response);
+
+					if (rsp) {
+						document.getElementById("meteo").style.color = "black";
+						document.getElementById("meteo").innerHTML = `${rsp.temp.toFixed(0)}°C, ${rsp.text}`;
+						document.getElementById("where").innerHTML = rsp.location;
+
+						img = document.createElement("img");
+						if (images.includes(rsp.image)) {
+							img.src = "https://[bucket].s3.eu-west-3.amazonaws.com/img/" + rsp.image + ".png";
+						} else {
+							img.src = "https://[bucket].s3.eu-west-3.amazonaws.com/img/Mist.png";
+						}
+						document.getElementById("image").innerHTML = "";
+						document.getElementById("image").appendChild(img);
+					} else {
+						document.getElementById("meteo").style.color = "red";
+						document.getElementById("meteo").innerHTML = "Nincs találat :/";
+						document.getElementById("where").innerHTML = "";
+
+						document.getElementById("image").innerHTML = "";
+					}
+				}
+			};
+			const place = document.getElementById("place").value;
+			xhttp.open("GET", "https://[deployment]execute-api.eu-west-3.amazonaws.com/default/meteo?place=" + place, true);
+			xhttp.send();
+		}
+	</script>
+</head>
+
+<body>
+	<div align="center" class="containers w-25 mx-auto">
+		<br />
+		<br />
+		<br />
+
+		<h1>METEO</h1>
+		<br />
+		<div class="input-group">
+			<input type="text" id="place" class="form-control" placeholder="location" aria-label="location"
+				aria-describedby="button-addon2" />
+			<div class="input-group-append">
+				<button onclick="myFunction()" class="btn btn-secondary" type="button" id="button-addon2">GO</button>
+			</div>
+		</div>
+		<br />
+		<h3 id="meteo"></h3>
+		<div id="image"></div>
+		<br />
+		<h4 id="where"></h4>
+	</div>
+
+	<script>
+		document.getElementById("place").addEventListener("keydown", event => {
+			if (event.which === 13 || event.keyCode === 13 || event.key === "Enter") {
+				myFunction();
+			}
+		})
+	</script>
+
+</body>
+
+</html>

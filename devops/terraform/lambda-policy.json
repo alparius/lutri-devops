@@ -2,13 +2,12 @@
     "Version": "2012-10-17",
     "Statement": [
         {
-            "Sid": "Stmt1234567890",
             "Effect": "Allow",
             "Action": [
                 "lambda:InvokeFunction",
                 "lambda:InvokeAsync"
             ],
-            "Resource": "[arn]"
+            "Resource": "arn:aws:lambda:eu-west-3:[account_id]:function:*"
         }
     ]
 }

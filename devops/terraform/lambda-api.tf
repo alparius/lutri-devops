@@ -175,7 +175,7 @@ resource "aws_lambda_function" "private_lambda" {
 ### replace lambda URL in the deployable index.html
 resource "null_resource" "insert_lambdalink" {
   provisioner "local-exec" {
-    command = "sed -i -r 's#https:\\/\\/[a-z0-9\\.\\-]*\\/default\\/meteo\\?place#${module.apigateway_with_cors.lambda_url}\\/meteo?place#' ./application/website/index.html"
+    command = "sed -i -r 's#https:\\/\\/[a-z0-9\\.\\-]*\\/default\\/meteo\\?place#${module.apigateway_with_cors.lambda_url}?place#' ./application/website/index.html"
   }
 }
 
@@ -188,11 +188,18 @@ resource "null_resource" "insert_lambdalink" {
 
 module "apigateway_with_cors" {
   source  = "alparius/apigateway-with-cors/aws"
-  version = "0.2.0"
+  version = "0.3.1"
 
   lambda_function_name = aws_lambda_function.public_lambda.function_name
   lambda_invoke_arn    = aws_lambda_function.public_lambda.invoke_arn
   path_part            = "meteo"
+
+  request_parameters = { "method.request.querystring.place" = true }
+  request_templates  = {
+    "application/json" = <<EOF
+    { "place" : "$input.params('place')" }
+    EOF
+  }
 }
 
 # ### the gateway itself
@@ -212,7 +219,7 @@ module "apigateway_with_cors" {
 #   source_arn = "${aws_api_gateway_rest_api.meteo_gw.execution_arn}/*/*"
 # }
 
-# ### api resource, mapping .../meteo
+# ### api route, mapping .../meteo
 # resource "aws_api_gateway_resource" "meteo_proxy" {
 #   rest_api_id = aws_api_gateway_rest_api.meteo_gw.id
 #   parent_id   = aws_api_gateway_rest_api.meteo_gw.root_resource_id
@@ -225,7 +232,24 @@ module "apigateway_with_cors" {
 #   resource_id   = aws_api_gateway_resource.meteo_proxy.id
 #   http_method   = "GET"
 #   authorization = "NONE"
-#   # request_parameters = { "method.request.querystring.place" = true }
+#
+#   request_parameters = { "method.request.querystring.place" = true }
+# }
+
+# ### default 'OK' response
+# resource "aws_api_gateway_method_response" "meteo_200" {
+#   rest_api_id = aws_api_gateway_rest_api.meteo_gw.id
+#   resource_id = aws_api_gateway_resource.meteo_proxy.id
+#   http_method = aws_api_gateway_method.meteo.http_method
+#   status_code = "200"
+#
+#   response_models = {
+#     "application/json" = "Empty"
+#   }
+#
+#   response_parameters = {
+#     "method.response.header.Access-Control-Allow-Origin" = true
+#   }
 # }
 
 # ### connecting the api gateway with the lambda
@@ -235,19 +259,36 @@ module "apigateway_with_cors" {
 #   http_method = aws_api_gateway_method.meteo.http_method
 #
 #   integration_http_method = "POST"
-#   type                    = "AWS_PROXY"
+#   type                    = "AWS"
 #   uri                     = aws_lambda_function.public_lambda.invoke_arn
 #
-#   # request_templates = {
-#   #   "application/json" = <<EOF
-#   #   {
-#   #     "place" : "$input.params('place')"
-#   #   }
-#   #   EOF
-#   # }
+#   request_templates = {
+#     "application/json" = <<EOF
+#     {
+#       "place" : "$input.params('place')"
+#     }
+#     EOF
+#   }
 # }
 
-# ### adding OPTIONS to the api gateway
+# ### integration response
+# resource "aws_api_gateway_integration_response" "method_integration_200" {
+#   rest_api_id = aws_api_gateway_rest_api.meteo_gw.id
+#   resource_id = aws_api_gateway_resource.meteo_proxy.id
+#   http_method = aws_api_gateway_method.meteo.http_method
+#   status_code = aws_api_gateway_method_response.meteo_200.status_code
+#
+#   response_parameters = {
+#     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
+#   }
+#
+#   depends_on = [
+#     aws_api_gateway_method_response.meteo_200,
+#     aws_api_gateway_integration.meteo_lambda
+#   ]
+# }
+
+### adding OPTIONS to the api gateway
 # module "cors" {
 #   source  = "squidfunk/api-gateway-enable-cors/aws"
 #   version = "0.3.1"
@@ -256,36 +297,31 @@ module "apigateway_with_cors" {
 #   api_resource_id = aws_api_gateway_method.meteo.resource_id
 # }
 
-# ### deploying, needs taint to re-deploy
+# ## deploying, needs taint to re-deploy
 # resource "aws_api_gateway_deployment" "meteo_deployment" {
 #   rest_api_id = aws_api_gateway_rest_api.meteo_gw.id
-#   stage_name  = "default"
+#   stage_name = "default"
 #
 #   depends_on = [aws_api_gateway_integration.meteo_lambda]
 # }
 
 
-#  ██████  ██    ██ ██  ██████ ██   ██ 
-# ██    ██ ██    ██ ██ ██      ██  ██  
-# ██    ██ ██    ██ ██ ██      █████   
-# ██ ▄▄ ██ ██    ██ ██ ██      ██  ██  
-#  ██████   ██████  ██  ██████ ██   ██ 
-#     ▀▀                               
+# ### protection against spam
+# ### ! needs some 'depends_on's
 
-### public square lambda tryhard
-resource "aws_lambda_function" "public_square_lambda" {
-  function_name = "csalpi_tf_public_square_lambda"
-  filename      = "target/public-square-lambda.zip"
-  handler       = "index.handler"
-  runtime       = "nodejs10.x"
-  role          = aws_iam_role.lambda_role.arn
-}
-module "apigateway_with_cors_square" {
-  source               = "alparius/apigateway-with-cors/aws"
-  version              = "0.2.0"
-  lambda_function_name = aws_lambda_function.public_square_lambda.function_name
-  lambda_invoke_arn    = aws_lambda_function.public_square_lambda.invoke_arn
-}
-output "square_lambda_url" {
-  value = module.apigateway_with_cors_square.lambda_url
-}
+# resource "aws_api_gateway_stage" "meteo_stage" {
+#   stage_name = aws_api_gateway_deployment.meteo_deployment.stage_name
+#   rest_api_id = aws_api_gateway_rest_api.meteo_gw.id
+#   deployment_id = aws_api_gateway_deployment.meteo_deployment.id
+# }
+
+# resource "aws_api_gateway_method_settings" "meteo_settings" {
+#   rest_api_id = aws_api_gateway_rest_api.meteo_gw.id
+#   stage_name = aws_api_gateway_stage.meteo_stage.stage_name
+#   method_path = "*/*"
+#
+#   settings {
+#     throttling_rate_limit = 5
+#     throttling_burst_limit = 10
+#   }
+# }
