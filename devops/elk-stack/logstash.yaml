@@ -1,7 +1,7 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-    name: lutri2-logstash
+    name: lutri2-logstash-deployment
     labels:
       stack: lutri2
       component: lutri2-logstash
@@ -64,9 +64,12 @@ spec:
 # apiVersion: extensions/v1beta1
 # kind: Ingress
 # metadata:
-#     name: lutri2-logstash-ingress-5044
-#     annotations:
-#       kubernetes.io/ingress.class: nginx
+#   name: lutri2-logstash-ingress-5044
+#   labels:
+#     stack: lutri2
+#     component: lutri2-logstash
+#   annotations:
+#     kubernetes.io/ingress.class: nginx
 # spec:
 #     rules:
 #     - host: lutri2-logstash-5044.k8s.codespring.ro
@@ -81,9 +84,12 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-    name: lutri2-logstash-ingress-5000
-    annotations:
-      kubernetes.io/ingress.class: nginx
+  name: lutri2-logstash-ingress-5000
+  labels:
+    stack: lutri2
+    component: lutri2-logstash
+  annotations:
+    kubernetes.io/ingress.class: nginx
 spec:
     rules:
     - host: lutri2-logstash-5000.k8s.codespring.ro

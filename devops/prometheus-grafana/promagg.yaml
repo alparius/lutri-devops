@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lutri2-promagg-deployment
+  labels:
+    stack: lutri2
+    component: lutri2-promagg
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: lutri2-promagg
+  template:
+    metadata:
+      labels:
+        stack: lutri2
+        component: lutri2-promagg
+    spec:
+      containers:
+        - image: alparius/prom-aggregation-gateway
+          name: promagg
+          ports:
+            - containerPort: 8085
+              name: promagg
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lutri2-promagg-service
+  labels:
+    stack: lutri2
+    component: lutri2-promagg
+spec:
+  type: ClusterIP
+  selector:
+    component: lutri2-promagg
+  ports:
+    - port: 80
+      targetPort: 8085
+      protocol: TCP
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: lutri2-promagg-ingress
+  labels:
+    stack: lutri2
+    component: lutri2-promagg
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+    rules:
+    - host: csa-lutri2-promagg.apps.okd.codespring.ro
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: lutri2-promagg-service
+            servicePort: 80

@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: lutri2-elastic-pvc
+  labels:
+    stack: lutri2
+    component: lutri2-elastic
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lutri2-elastic-deployment
+  labels:
+    stack: lutri2
+    component: lutri2-elastic
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: lutri2-elastic
+  template:
+    metadata:
+      labels:
+        stack: lutri2
+        component: lutri2-elastic
+    spec:
+      containers:
+        - image: elasticsearch:7.8.1
+          name: elasticsearch
+          ports:
+            - containerPort: 9200
+              name: elasticsearch
+          env:
+            - name: discovery.type
+              value: single-node
+            - name: http.cors.enabled
+              value: "true"
+            - name: http.cors.allow-origin
+              value: "*"
+          volumeMounts:
+            - mountPath: /usr/share/elasticsearch/data
+              name: var-lib-elasticsearch
+      volumes:
+        - name: var-lib-elasticsearch
+          persistentVolumeClaim:
+            claimName: lutri2-elastic-pvc
+            
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lutri2-elastic-service
+  labels:
+    stack: lutri2
+    component: lutri2-elastic
+spec:
+  type: NodePort
+  selector:
+    component: lutri2-elastic
+  ports:
+    - port: 9200
+      targetPort: 9200
+      nodePort: 30129
+      protocol: TCP
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: lutri2-elastic-ingress
+  labels:
+    stack: lutri2
+    component: lutri2-elastic
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+    rules:
+    - host: csa-lutri2-elastic.apps.okd.codespring.ro
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: lutri2-elastic-service
+            servicePort: 9200

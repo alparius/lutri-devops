@@ -3,6 +3,7 @@ import { Card, Message } from "semantic-ui-react";
 
 import FoodCard from "./FoodCard";
 import { Food } from "../model/Food";
+import { listRequestCounter, listSizeHistogram } from "../requests/Prometheus";
 
 interface IFoodListProps {
     response: Food[] | undefined;
@@ -27,6 +28,8 @@ const FoodList: React.FC<IFoodListProps> = (props: IFoodListProps) => {
     } else if (!response || response.length === 0) {
         return <Message info>No foods yet.</Message>;
     } else {
+        listRequestCounter.inc();
+        listSizeHistogram.observe(response.length, { path: "/api/users", status: 200 });
         return (
             <>
                 {(postShowError || deleteShowError || putShowError) && <Message negative>Server error.</Message>}

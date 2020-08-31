@@ -25,12 +25,16 @@ data:
         scrape_interval: 20s
         static_configs:
           - targets: ['localhost:9090']
+      - job_name: 'lutri2-frontend'
+        scrape_interval: 5s
+        static_configs:
+          - targets: ['lutri2-promagg-service:80']
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: lutri2-prometheus
+  name: lutri2-prometheus-deployment
   labels:
     stack: lutri2
     component: lutri2-prometheus
@@ -86,9 +90,12 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-    name: lutri2-prometheus-ingress
-    annotations:
-      kubernetes.io/ingress.class: nginx
+  name: lutri2-prometheus-ingress
+  labels:
+    stack: lutri2
+    component: lutri2-prometheus
+  annotations:
+    kubernetes.io/ingress.class: nginx
 spec:
     rules:
     - host: csa-lutri2-prometheus.apps.okd.codespring.ro

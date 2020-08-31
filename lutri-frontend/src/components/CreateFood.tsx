@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { Button, Form, Message, Modal } from "semantic-ui-react";
 
+import { cancelClicked, myGauge } from "../requests/Prometheus";
 import { newFood, NewFood } from "../model/Food";
+import sendLog from "../requests/ElasticLog";
 
 interface ICreateFoodProps {
     food: NewFood;
@@ -18,6 +20,8 @@ const CreateFood: React.FC<ICreateFoodProps> = (props: ICreateFoodProps) => {
     const handleModalChange = (_: any) => {
         if (open) {
             setOpen(false);
+            cancelClicked.inc();
+            sendLog("createFood", "Oh naw man, cancel again..");
         } else {
             setFood(newFood);
             setOpen(true);
@@ -28,6 +32,7 @@ const CreateFood: React.FC<ICreateFoodProps> = (props: ICreateFoodProps) => {
         const { name, value } = event.target;
         if (name !== "name") {
             setFood({ ...food, [name]: Number(value) });
+            myGauge.set(Number(value));
         } else {
             setFood({ ...food, [name]: value });
         }
@@ -39,6 +44,7 @@ const CreateFood: React.FC<ICreateFoodProps> = (props: ICreateFoodProps) => {
         } else {
             setErrorMsg(false);
             setOpen(false);
+            sendLog("createFood", "That is one successful create, my boy.");
             asyncPost();
         }
     };

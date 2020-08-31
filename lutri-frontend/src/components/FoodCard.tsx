@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button, Card, Form, Message, Modal, Grid } from "semantic-ui-react";
 
 import { Food } from "../model/Food";
+import sendLog from "../requests/ElasticLog";
 
 interface IFoodCardProps {
     food: Food;
@@ -54,6 +55,7 @@ const FoodCard: React.FC<IFoodCardProps> = (props: IFoodCardProps) => {
     const handleDeleteModalChange = (_: any) => {
         if (deleteModalOpen) {
             setDeleteModalOpen(false);
+            sendLog("deleteFood", "Somebody canceled a delete. That's hot!'");
         } else {
             setEditFood(food);
             setDeleteModalOpen(true);
