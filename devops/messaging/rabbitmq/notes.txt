@@ -1,0 +1,77 @@
+https://www.rabbitmq.com/download.html
+
+
+https://registry.hub.docker.com/_/rabbitmq/
+
+docker run -d --hostname my-rabbit --name some-rabbit -p 5672:5672 -p 15672:15672 rabbitmq:3-management
+    
+    -e RABBITMQ_DEFAULT_USER=user -e RABBITMQ_DEFAULT_PASS=password
+
+
+https://www.rabbitmq.com/tutorials
+
+https://www.rabbitmq.com/documentation.html
+
+
+-----------------------------------------------------
+FANOUT:
+    = broadcast
+    run multiple receivers
+
+
+-----------------------------------------------------
+ROUTING
+    -- get all logs
+    python t4-getlog.py info warning error
+
+    -- subscribe to certain channels only
+    python t4-getlog.py info warning
+
+    -- emit a log
+    python t4-emitlog.py warning "No entry!."
+
+
+-----------------------------------------------------
+TOPICS:
+    -- * (star) can substitute for exactly one word
+    -- # (hash) can substitute for zero or more words
+
+    -- receive all the logs
+    python t5-getlog.py "#"
+    
+    -- receive all logs from the facility "kern"
+    python t5-getlog.py "kern.*"
+
+    -- if you want to hear only about "critical" logs
+    python t5-getlog.py "*.critical"
+    
+    -- you can create multiple bindings
+    python t5-getlog.py "kern.*" "*.critical"
+    
+    -- emit a log with a routing key "kern.critical" type:
+    python t5-emitlog.py "kern.critical" "A critical kernel error"
+
+
+-----------------------------------------------------
+RPC:
+    - When the Client starts up, it creates an anonymous exclusive callback queue.
+    - For an RPC request, the Client sends a message with two properties: reply_to,
+        which is set to the callback queue and correlation_id, which is set to a unique value for every request.
+    - The request is sent to an rpc_queue queue.
+    - The RPC worker (aka: server) is waiting for requests on that queue.
+        When a request appears, it does the job and sends a message with the result back to the Client,
+        using the queue from the reply_to field.
+    - The client waits for data on the callback queue. When a message appears, it checks the correlation_id property.
+        If it matches the value from the request it returns the response to the application.
+
+
+
+Please keep in mind that this and other tutorials are, well, tutorials.
+They demonstrate one new concept at a time and may intentionally oversimplify some things and leave out others.
+For example topics such as connection management, error handling, connection recovery, concurrency and metric collection
+are largely omitted for the sake of brevity. Such simplified code should not be considered production ready.
+
+Learn more:
+- https://www.rabbitmq.com/confirms.html
+- https://www.rabbitmq.com/production-checklist.html
+- https://www.rabbitmq.com/monitoring.html

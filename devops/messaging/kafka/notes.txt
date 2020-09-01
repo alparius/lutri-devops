@@ -1,0 +1,38 @@
+https://kafka.apache.org/documentation/#quickstart
+
+
+
+https://kafka.apache.org/25/documentation/streams
+
+
+bin/zookeeper-server-start.sh config/zookeeper.properties
+
+
+bin/kafka-server-start.sh config/server.properties
+
+step 1 : point to a new log directory in server.properties file and save the file
+log.dirs=C:\Tools\kafka_2.11-2.1.0\kafka-test-logs
+step 2 : start the kafka server again
+/bin/windows/kafka-server-start.bat /config/server.properties
+
+
+bin/kafka-topics.sh --delete --topic streams-plaintext-input --bootstrap-server localhost:9092
+bin/kafka-topics.sh --delete --topic streams-wordcount-output --bootstrap-server localhost:9092
+
+sudo ./bin/zookeeper-shell.sh localhost:2181 rmr /brokers/topics/streams-plaintext-input
+sudo ./bin/zookeeper-shell.sh localhost:2181 rmr /brokers/topics/streams-wordcount-output
+
+
+bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic streams-plaintext-input
+bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic streams-wordcount-output --config cleanup.policy=compact
+
+bin/kafka-topics.sh --bootstrap-server localhost:9092 --describe
+bin/kafka-topics.sh --zookeeper localhost:2181 --list
+
+
+bin/kafka-run-class.sh org.apache.kafka.streams.examples.wordcount.WordCountDemo
+
+
+bin/kafka-console-producer.sh --bootstrap-server localhost:9092 --topic streams-plaintext-input
+
+bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic streams-wordcount-output --from-beginning --formatter kafka.tools.DefaultMessageFormatter --property print.key=true --property print.value=true --property key.deserializer=org.apache.kafka.common.serialization.StringDeserializer --property value.deserializer=org.apache.kafka.common.serialization.LongDeserializer
