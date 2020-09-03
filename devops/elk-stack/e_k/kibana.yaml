@@ -63,7 +63,7 @@ metadata:
       kubernetes.io/ingress.class: nginx
 spec:
     rules:
-    - host: csalpi-lutri2-kibana.apps.okd.codespring.ro
+    - host: csa-lutri2-kibana.apps.okd.codespring.ro
       http:
         paths:
         - path: /

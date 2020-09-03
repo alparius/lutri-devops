@@ -14,7 +14,7 @@ func Setup() {
 	logrus.SetLevel(logrus.TraceLevel)
 	logrus.SetReportCaller(true)
 
-	setupDirectElasticLogging()
+	//setupDirectElasticLogging()
 	setupLogstashLogging()
 	setupFileLogging()
 }

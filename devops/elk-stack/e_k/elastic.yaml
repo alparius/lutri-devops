@@ -38,8 +38,12 @@ spec:
             - containerPort: 9200
               name: elasticsearch
           env:
+            - name: http.cors.max-age
+              value: "300"
+            - name: http.cors.allow-credentials
+              value: "true" 
             - name: discovery.type
-              value: single-node
+              value: "single-node"
             - name: http.cors.enabled
               value: "true"
             - name: http.cors.allow-origin

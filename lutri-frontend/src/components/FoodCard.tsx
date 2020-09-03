@@ -55,7 +55,7 @@ const FoodCard: React.FC<IFoodCardProps> = (props: IFoodCardProps) => {
     const handleDeleteModalChange = (_: any) => {
         if (deleteModalOpen) {
             setDeleteModalOpen(false);
-            sendLog("deleteFood", "Somebody canceled a delete. That's hot!'");
+            sendLog("FREND", "deleteFood", "Somebody cancelled a delete. That's hot!");
         } else {
             setEditFood(food);
             setDeleteModalOpen(true);

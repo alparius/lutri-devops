@@ -90,3 +90,9 @@ logstash-oc-up:
 
 logstash-oc-down:
 	oc delete -f ./devops/elk-stack/logstash.yaml
+
+elk-up:
+	oc apply -f ./devops/elk-stack/e_k
+
+elk-down:
+	oc delete -f ./devops/elk-stack/e_k

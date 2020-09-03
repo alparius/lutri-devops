@@ -21,7 +21,7 @@ const CreateFood: React.FC<ICreateFoodProps> = (props: ICreateFoodProps) => {
         if (open) {
             setOpen(false);
             cancelClicked.inc();
-            sendLog("createFood", "Oh naw man, cancel again..");
+            sendLog("FREND", "createFood", "Oh naw man, cancel again..");
         } else {
             setFood(newFood);
             setOpen(true);
@@ -44,7 +44,7 @@ const CreateFood: React.FC<ICreateFoodProps> = (props: ICreateFoodProps) => {
         } else {
             setErrorMsg(false);
             setOpen(false);
-            sendLog("createFood", "That is one successful create, my boy.");
+            sendLog("FREND", "createFood", "That is one successful create, my boy.");
             asyncPost();
         }
     };
