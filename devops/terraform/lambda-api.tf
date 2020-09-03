@@ -66,60 +66,11 @@ resource "aws_s3_bucket_object" "file_upload_private" {
 # ██      ██    ██ ██      ██ ██         ██    
 # ██       ██████  ███████ ██  ██████    ██    
 
-data "aws_caller_identity" "current_account" {}
+### declarations moved to the 'iam-stuff' subfolder for separate handling
+### bug: https://github.com/serverless/examples/issues/279
 
-### first create a role for lambdas
-data "aws_iam_policy_document" "lambda_assume_role_policy" {
-  statement {
-    effect  = "Allow"
-    actions = ["sts:AssumeRole"]
-    principals {
-      identifiers = ["lambda.amazonaws.com"]
-      type        = "Service"
-    }
-  }
-}
-
-resource "aws_iam_role" "lambda_role" {
-  name               = "csalpi-tf-lambda-role"
-  assume_role_policy = data.aws_iam_policy_document.lambda_assume_role_policy.json
-}
-
-### attach log, s3 and lambda-invoke policies to the created role
-data "aws_iam_policy_document" "lambda_policies" {
-  statement {
-    effect = "Allow"
-    actions = [
-      "logs:CreateLogGroup",
-      "logs:CreateLogStream",
-      "logs:PutLogEvents",
-    ]
-    resources = ["*"]
-  }
-
-  statement {
-    effect = "Allow"
-    actions = [
-      "s3:GetObject",
-      "s3:PutObject",
-    ]
-    resources = ["arn:aws:s3:::*"]
-  }
-
-  statement {
-    effect = "Allow"
-    actions = [
-      "lambda:InvokeFunction",
-      "lambda:InvokeAsync",
-    ]
-    resources = ["arn:aws:lambda:${var.aws_region}:${data.aws_caller_identity.current_account.account_id}:function:*"]
-  }
-}
-
-resource "aws_iam_role_policy" "lambda_role_policies" {
-  name   = "csalpi-tf-lambda-policies"
-  role   = aws_iam_role.lambda_role.id
-  policy = data.aws_iam_policy_document.lambda_policies.json
+data "aws_iam_role" "lambda_role" {
+  name = "csalpi-tf-lambda-role"
 }
 
 
@@ -139,7 +90,7 @@ resource "aws_lambda_function" "public_lambda" {
   handler = "index.handler" # handler file and function
   runtime = "nodejs10.x"
 
-  role = aws_iam_role.lambda_role.arn # "arn:aws:iam::132240640376:role/csalpi-lambdasrole"
+  role = data.aws_iam_role.lambda_role.arn # "arn:aws:iam::132240640376:role/csalpi-tf-lambda-role" # aws_iam_role.lambda_role.arn
 
   environment {
     variables = {
@@ -160,7 +111,7 @@ resource "aws_lambda_function" "private_lambda" {
   handler = "lambda_function.lambda_handler" # handler file and function
   runtime = "python3.6"
 
-  role = aws_iam_role.lambda_role.arn # "arn:aws:iam::132240640376:role/csalpi-lambdasrole"
+  role = data.aws_iam_role.lambda_role.arn # "arn:aws:iam::132240640376:role/csalpi-tf-lambda-role" # aws_iam_role.lambda_role.arn
 
   depends_on = [aws_s3_bucket_object.file_upload_private]
 }
@@ -175,7 +126,7 @@ resource "aws_lambda_function" "private_lambda" {
 ### replace lambda URL in the deployable index.html
 resource "null_resource" "insert_lambdalink" {
   provisioner "local-exec" {
-    command = "sed -i -r 's#https:\\/\\/[a-z0-9\\.\\-]*\\/default\\/meteo\\?place#${module.apigateway_with_cors.lambda_url}?place#' ./application/website/index.html"
+    command = "sed -i -r 's#https:\\/\\/[a-z0-9\\.\\-]*\\/default\\/\\{myparam\\}\\?place#${module.apigateway_with_cors.lambda_url}?place#' ./application/website/index.html"
   }
 }
 
@@ -192,12 +143,21 @@ module "apigateway_with_cors" {
 
   lambda_function_name = aws_lambda_function.public_lambda.function_name
   lambda_invoke_arn    = aws_lambda_function.public_lambda.invoke_arn
-  path_part            = "meteo"
+  path_part            = "{myparam}"
+  # static - no much sense,  when not needed
+  # {myparam} - catch one variable
+  # {allthestuff+} - catch anything, even something like '/users/1234/orders/2'
 
-  request_parameters = { "method.request.querystring.place" = true }
-  request_templates  = {
+  request_parameters = {
+    "method.request.querystring.place" = true,
+    "method.request.path.myparam"      = true,
+  }
+  request_templates = {
     "application/json" = <<EOF
-    { "place" : "$input.params('place')" }
+    {
+      "place" : "$input.params('place')",
+      "myparam" : "$input.params('myparam')"
+    }
     EOF
   }
 }

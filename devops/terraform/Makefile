@@ -12,5 +12,5 @@ newinstance:
 	tf apply --auto-approve
 
 newdeploy:
-	tf taint aws_api_gateway_deployment.meteo_deployment
+	tf taint module.apigateway_with_cors.aws_api_gateway_deployment.deployment
 	tf apply --auto-approve
